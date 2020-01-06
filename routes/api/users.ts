@@ -52,15 +52,11 @@ router.post(
           id: user.id
         }
       };
-      jwt.sign(
-        payload,
-        config.get("jwtSecret"),
-        { expiresIn: 3600 },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ token });
-        }
-      );
+      const jwtSecret: string = config.get("jwtSecret");
+      jwt.sign(payload, jwtSecret, { expiresIn: 3600 }, (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      });
     } catch (error) {
       console.log(error.message);
       res.status(500).send("Server error");
