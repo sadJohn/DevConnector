@@ -12,7 +12,8 @@ import bcrypt from "bcryptjs";
 import auth from "../../middleware/auth";
 import User from "../../models/User";
 
-import { UserInterface, AuthRequest } from "../../interfaces/auth";
+import { AuthRequest } from "../../interfaces/auth";
+import { RequestUser } from "../../interfaces/user";
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ const AuthRequestHandler = async (
   _: NextFunction
 ) => {
   try {
-    const user = await User.findById((req.user as UserInterface).id).select(
+    const user = await User.findById((req.user as RequestUser).id).select(
       "-password"
     );
     res.json(user);
