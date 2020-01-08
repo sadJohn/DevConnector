@@ -2,38 +2,49 @@ import express, { Response, RequestHandler, NextFunction } from "express";
 import { check, validationResult } from "express-validator";
 
 import auth from "../../middleware/auth";
-import Profile from "../../models/Profile";
-import User from "../../models/User";
 import { AuthRequest } from "../../interfaces/auth";
 import { ProfileSchema, Social } from "../../interfaces/profile";
+import profileService from "../../services/profileService";
 
 const router = express.Router();
 
-const getProfileHandler = async (
+router.get("/me", auth as RequestHandler, getProfileHandler as RequestHandler);
+
+router.post(
+  "/",
+  auth as RequestHandler,
+  [
+    check("status", "Status is required")
+      .not()
+      .isEmpty(),
+    check("skills", "Skills is required")
+      .not()
+      .isEmpty()
+  ],
+  postProfileHandler as RequestHandler
+);
+
+router.get("/", async (_, res) => {
+  await profileService.fetchAllProfiles(res);
+});
+
+router.get("/user/:user_id", async (req, res) => {
+  await profileService.fetchProfile(req.params.user_id, res);
+});
+
+async function getProfileHandler(
   req: AuthRequest,
   res: Response,
   _: NextFunction
-) => {
-  try {
-    const profile = await Profile.findOne({
-      user: req.user.id
-    }).populate("user", ["name", "avatar"]);
-    if (!profile) {
-      return res.status(400).json({ msg: "There is no profile for this user" });
-    }
+) {
+  await profileService.fetchProfile(req.user.id, res);
+}
 
-    res.json(profile);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Server error");
-  }
-};
-
-const postProfileHandler = async (
+async function postProfileHandler(
   req: AuthRequest,
   res: Response,
   _: NextFunction
-) => {
+) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -57,9 +68,7 @@ const postProfileHandler = async (
   const profileFeilds = {} as ProfileSchema;
   profileFeilds.user = req.user.id;
   profileFeilds.status = status;
-  profileFeilds.skills = skills
-    .split(",")
-    .map((skill: string) => skill.trim());
+  profileFeilds.skills = skills.split(",").map((skill: string) => skill.trim());
   if (company) profileFeilds.company = company;
   if (website) profileFeilds.website = website;
   if (loacation) profileFeilds.loacation = loacation;
@@ -73,39 +82,11 @@ const postProfileHandler = async (
   if (linkedin) profileFeilds.social.linkedin = linkedin;
   if (instagram) profileFeilds.social.instagram = instagram;
 
-  try {
-    let profile = await Profile.findOne({ user: req.user.id });
-    if (profile) {
-      profile = await Profile.findOneAndUpdate(
-        { user: req.user.id },
-        { $set: profileFeilds },
-        { new: true }
-      );
-      return res.json(profile);
-    }
-
-    profile = new Profile(profileFeilds);
-    await profile.save();
-    return res.json(profile);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Server error");
+  const isProfileExist = profileService.isProfileExists(req.user.id, res);
+  if (isProfileExist) {
+    await profileService.updateProfile(req.user.id, res, profileFeilds);
   }
-};
-router.get("/me", auth as RequestHandler, getProfileHandler as RequestHandler);
-
-router.post(
-  "/",
-  auth as RequestHandler,
-  [
-    check("status", "Status is required")
-      .not()
-      .isEmpty(),
-    check("skills", "Skills is required")
-      .not()
-      .isEmpty()
-  ],
-  postProfileHandler as RequestHandler
-);
+  await profileService.createProfile(res, profileFeilds);
+}
 
 export default router;

@@ -2,10 +2,10 @@ import express, { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
 import gravatar from "gravatar";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import config from "config";
 
-import User from "../../models/User";
+import userService from "../../services/userService";
+import { UserSchema } from "../../interfaces/user";
+import authService from "../../services/authService";
 
 const router = express.Router();
 
@@ -30,8 +30,8 @@ router.post(
     const { name, email, password } = req.body;
 
     try {
-      const userExists = await User.findOne({ email });
-      if (userExists) {
+      const isUserExists = await userService.isUserExists(res, email);
+      if (isUserExists) {
         return res
           .status(400)
           .json({ errors: [{ msg: "User already exists" }] });
@@ -42,21 +42,16 @@ router.post(
         r: "pg",
         d: "mm"
       });
-      const user = new User({ name, email, avatar, password });
       const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-      await user.save();
+      const hashedPassword = await bcrypt.hash(password, salt);
+      const user = await userService.createUser(res, {
+        name,
+        email,
+        avatar,
+        password: hashedPassword
+      } as UserSchema);
 
-      const payload = {
-        user: {
-          id: user.id
-        }
-      };
-      const jwtSecret: string = config.get("jwtSecret");
-      jwt.sign(payload, jwtSecret, { expiresIn: 3600 }, (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      });
+      authService.sendJWTToken((user as UserSchema).id, res);
     } catch (error) {
       console.log(error.message);
       res.status(500).send("Server error");

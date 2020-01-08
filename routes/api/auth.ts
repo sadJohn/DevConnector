@@ -5,33 +5,16 @@ import express, {
   NextFunction
 } from "express";
 import { check, validationResult } from "express-validator";
-import jwt from "jsonwebtoken";
-import config from "config";
 import bcrypt from "bcryptjs";
 
 import auth from "../../middleware/auth";
-import User from "../../models/User";
 
 import { AuthRequest } from "../../interfaces/auth";
-import { RequestUser } from "../../interfaces/user";
+import { UserSchema } from "../../interfaces/user";
+import userService from "../../services/userService";
+import authService from "../../services/authService";
 
 const router = express.Router();
-
-const AuthRequestHandler = async (
-  req: AuthRequest,
-  res: Response,
-  _: NextFunction
-) => {
-  try {
-    const user = await User.findById((req.user as RequestUser).id).select(
-      "-password"
-    );
-    res.json(user);
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).send("Server error");
-  }
-};
 
 router.get("/", auth as RequestHandler, AuthRequestHandler as RequestHandler);
 
@@ -50,35 +33,37 @@ router.post(
     const { email, password } = req.body;
 
     try {
-      const user = await User.findOne({ email });
+      const user = await userService.isUserExists(res, email);
       if (!user) {
         return res
           .status(400)
           .json({ errors: [{ msg: "Invalid Credentials" }] });
       }
 
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = await bcrypt.compare(
+        password,
+        (user as UserSchema).password
+      );
       if (!isMatch) {
         return res
           .status(400)
           .json({ errors: [{ msg: "Invalid Credentials" }] });
       }
 
-      const payload = {
-        user: {
-          id: user.id
-        }
-      };
-      const jwtSecret: string = config.get("jwtSecret");
-      jwt.sign(payload, jwtSecret, { expiresIn: 3600 }, (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      });
+      authService.sendJWTToken((user as UserSchema).id, res);
     } catch (error) {
       console.log(error.message);
       res.status(500).send("Server error");
     }
   }
 );
+
+async function AuthRequestHandler(
+  req: AuthRequest,
+  res: Response,
+  _: NextFunction
+) {
+  await authService.fetchAuthUser(req.user.id, res);
+}
 
 export default router;
