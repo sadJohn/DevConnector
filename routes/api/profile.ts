@@ -38,6 +38,29 @@ router.delete("/", auth as RequestHandler, async (req, res) => {
   await userService.deleteUser((req as AuthRequest).user.id, res);
 });
 
+router.put(
+  "/experience",
+  auth as RequestHandler,
+  [
+    check("title", "Title is required")
+      .not()
+      .isEmpty(),
+    check("company", "Company is requied")
+      .not()
+      .isEmpty(),
+    check("from", "From date is required")
+      .not()
+      .isEmpty()
+  ],
+  putExperience as RequestHandler
+);
+
+router.delete(
+  "/experience/:exp_id",
+  auth as RequestHandler,
+  deleteExpHandler as RequestHandler
+);
+
 async function getProfileHandler(
   req: AuthRequest,
   res: Response,
@@ -93,6 +116,34 @@ async function postProfileHandler(
     return await profileService.updateProfile(req.user.id, profileFeilds, res);
   }
   await profileService.createProfile(profileFeilds, res);
+}
+
+async function putExperience(req: AuthRequest, res: Response, _: NextFunction) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { title, company, location, from, to, current, description } = req.body;
+
+  const newExp = {
+    title,
+    company,
+    location,
+    from,
+    to,
+    current,
+    description
+  };
+  await profileService.putExperience(req.user.id, newExp, res);
+}
+
+async function deleteExpHandler(
+  req: AuthRequest,
+  res: Response,
+  _: NextFunction
+) {
+  await profileService.deleteExperience(req.user.id, req.params.exp_id, res);
 }
 
 export default router;

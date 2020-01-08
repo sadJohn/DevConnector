@@ -10,6 +10,10 @@ export interface ExperienceSchema {
   description?: string;
 }
 
+export interface ExperienceDbSchema extends ExperienceSchema {
+  _id?: string
+}
+
 export type Experience = ExperienceSchema[];
 
 export interface EducationSchema {

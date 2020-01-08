@@ -1,7 +1,11 @@
 import { Response } from "express";
 
 import Profile from "../models/Profile";
-import { ProfileSchema } from "../interfaces/profile";
+import {
+  ProfileSchema,
+  ExperienceSchema,
+  ExperienceDbSchema
+} from "../interfaces/profile";
 
 class ProfileService {
   async isProfileExists(id: string, res: Response) {
@@ -73,6 +77,33 @@ class ProfileService {
   async deleteProfile(id: string, res: Response) {
     try {
       await Profile.findOneAndRemove({ user: id });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Server error");
+    }
+  }
+
+  async putExperience(id: string, newExp: ExperienceSchema, res: Response) {
+    try {
+      const profile = (await this.isProfileExists(id, res)) as ProfileSchema;
+      profile.experience?.unshift(newExp);
+      await profile.save();
+      return res.json(profile);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Server error");
+    }
+  }
+
+  async deleteExperience(id: string, exp_id: string, res: Response) {
+    try {
+      const profile = (await this.isProfileExists(id, res)) as ProfileSchema;
+      const removeIndex = profile.experience
+        ?.map(item => (item as ExperienceDbSchema)._id)
+        .indexOf(exp_id);
+      profile.experience?.splice(removeIndex as number, 1);
+      await profile.save();
+      return res.json(profile);
     } catch (error) {
       console.log(error);
       return res.status(500).send("Server error");
