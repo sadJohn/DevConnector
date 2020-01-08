@@ -5,6 +5,7 @@ import auth from "../../middleware/auth";
 import { AuthRequest } from "../../interfaces/auth";
 import { ProfileSchema, Social } from "../../interfaces/profile";
 import profileService from "../../services/profileService";
+import userService from "../../services/userService";
 
 const router = express.Router();
 
@@ -30,6 +31,11 @@ router.get("/", async (_, res) => {
 
 router.get("/user/:user_id", async (req, res) => {
   await profileService.fetchProfile(req.params.user_id, res);
+});
+
+router.delete("/", auth as RequestHandler, async (req, res) => {
+  await profileService.deleteProfile((req as AuthRequest).user.id, res);
+  await userService.deleteUser((req as AuthRequest).user.id, res);
 });
 
 async function getProfileHandler(
@@ -82,11 +88,11 @@ async function postProfileHandler(
   if (linkedin) profileFeilds.social.linkedin = linkedin;
   if (instagram) profileFeilds.social.instagram = instagram;
 
-  const isProfileExist = profileService.isProfileExists(req.user.id, res);
+  const isProfileExist = await profileService.isProfileExists(req.user.id, res);
   if (isProfileExist) {
-    await profileService.updateProfile(req.user.id, res, profileFeilds);
+    return await profileService.updateProfile(req.user.id, profileFeilds, res);
   }
-  await profileService.createProfile(res, profileFeilds);
+  await profileService.createProfile(profileFeilds, res);
 }
 
 export default router;

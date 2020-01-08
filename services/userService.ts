@@ -23,6 +23,16 @@ class UserService {
       return res.status(500).send("Server error");
     }
   }
+
+  async deleteUser(id: string, res: Response) {
+    try {
+      await User.findOneAndRemove({ _id: id });
+      return res.json({ msg: "User deleted" });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Server error");
+    }
+  }
 }
 
 const userService = new UserService();

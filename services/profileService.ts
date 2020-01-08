@@ -14,7 +14,7 @@ class ProfileService {
   }
 
   async fetchProfile(id: string, res: Response) {
-    console.log(id)
+    console.log(id);
     try {
       const profile = await Profile.findOne({
         user: id
@@ -32,7 +32,7 @@ class ProfileService {
     }
   }
 
-  async createProfile(res: Response, profileFeilds: ProfileSchema) {
+  async createProfile(profileFeilds: ProfileSchema, res: Response) {
     try {
       const profile = new Profile(profileFeilds);
       await profile.save();
@@ -43,7 +43,7 @@ class ProfileService {
     }
   }
 
-  async updateProfile(id: string, res: Response, profileFeilds: ProfileSchema) {
+  async updateProfile(id: string, profileFeilds: ProfileSchema, res: Response) {
     try {
       const profile = await Profile.findOneAndUpdate(
         { user: id },
@@ -64,6 +64,15 @@ class ProfileService {
         "avatar"
       ]);
       return res.json(profiles);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Server error");
+    }
+  }
+
+  async deleteProfile(id: string, res: Response) {
+    try {
+      await Profile.findOneAndRemove({ user: id });
     } catch (error) {
       console.log(error);
       return res.status(500).send("Server error");
