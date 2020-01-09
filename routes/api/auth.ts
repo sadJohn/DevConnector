@@ -4,7 +4,7 @@ import express, {
   RequestHandler,
   NextFunction
 } from "express";
-import { check, validationResult } from "express-validator";
+import { check } from "express-validator";
 import bcrypt from "bcryptjs";
 
 import auth from "../../middleware/auth";
@@ -25,15 +25,12 @@ router.post(
     check("password", "Password is required").exists()
   ],
   async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    authService.sendValidationResult(req, res);
 
     const { email, password } = req.body;
 
     try {
-      const user = await userService.isUserExists(res, email);
+      const user = await userService.isUserExists(email, res);
       if (!user) {
         return res
           .status(400)
@@ -63,7 +60,8 @@ async function AuthRequestHandler(
   res: Response,
   _: NextFunction
 ) {
-  await authService.fetchAuthUser(req.user.id, res);
+  const user = await authService.fetchAuthUser(req.user.id, res);
+  res.json(user);
 }
 
 export default router;

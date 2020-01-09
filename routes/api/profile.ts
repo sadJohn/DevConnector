@@ -1,11 +1,12 @@
 import express, { Response, RequestHandler, NextFunction } from "express";
-import { check, validationResult } from "express-validator";
+import { check } from "express-validator";
 
 import auth from "../../middleware/auth";
 import { AuthRequest } from "../../interfaces/auth";
 import { ProfileSchema, Social } from "../../interfaces/profile";
 import profileService from "../../services/profileService";
 import userService from "../../services/userService";
+import authService from "../../services/authService";
 
 const router = express.Router();
 
@@ -104,10 +105,7 @@ async function postProfileHandler(
   res: Response,
   _: NextFunction
 ) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+  authService.sendValidationResult(req, res);
 
   const {
     company,
@@ -149,10 +147,7 @@ async function postProfileHandler(
 }
 
 async function putExperience(req: AuthRequest, res: Response, _: NextFunction) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+  authService.sendValidationResult(req, res);
 
   const { title, company, location, from, to, current, description } = req.body;
 
@@ -185,10 +180,7 @@ async function deleteEduHandler(
 }
 
 async function putEducation(req: AuthRequest, res: Response, _: NextFunction) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+  authService.sendValidationResult(req, res);
 
   const {
     school,

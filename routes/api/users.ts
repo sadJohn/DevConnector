@@ -30,7 +30,7 @@ router.post(
     const { name, email, password } = req.body;
 
     try {
-      const isUserExists = await userService.isUserExists(res, email);
+      const isUserExists = await userService.isUserExists(email, res);
       if (isUserExists) {
         return res
           .status(400)
@@ -44,12 +44,15 @@ router.post(
       });
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
-      const user = await userService.createUser(res, {
-        name,
-        email,
-        avatar,
-        password: hashedPassword
-      } as UserSchema);
+      const user = await userService.createUser(
+        {
+          name,
+          email,
+          avatar,
+          password: hashedPassword
+        } as UserSchema,
+        res
+      );
 
       authService.sendJWTToken((user as UserSchema).id, res);
     } catch (error) {

@@ -1,6 +1,7 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import config from "config";
 import jwt from "jsonwebtoken";
+import { validationResult } from "express-validator";
 
 import User from "../models/User";
 
@@ -8,8 +9,7 @@ class AuthService {
   async fetchAuthUser(id: string, res: Response) {
     console.log(id)
     try {
-      const user = await User.findById(id).select("-password");
-      return res.json(user);
+      return await User.findById(id).select("-password");
     } catch (error) {
       console.log(error.message);
       return res.status(500).send("Server error");
@@ -25,6 +25,13 @@ class AuthService {
       if (err) throw err;
       return res.json({ token });
     });
+  }
+
+  sendValidationResult(req: Request, res: Response) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
   }
 }
 

@@ -4,7 +4,7 @@ import User from "../models/User";
 import { UserSchema } from "../interfaces/user";
 
 class UserService {
-  async isUserExists(res: Response, email: string) {
+  async isUserExists(email: string, res: Response) {
     try {
       return await User.findOne({ email });
     } catch (error) {
@@ -13,7 +13,7 @@ class UserService {
     }
   }
 
-  async createUser(res: Response, userFeilds: UserSchema) {
+  async createUser(userFeilds: UserSchema, res: Response) {
     try {
       const user = new User(userFeilds);
       await user.save();
