@@ -4,7 +4,9 @@ import Profile from "../models/Profile";
 import {
   ProfileSchema,
   ExperienceSchema,
-  ExperienceDbSchema
+  ExperienceDbSchema,
+  EducationDbSchema,
+  EducationSchema
 } from "../interfaces/profile";
 
 class ProfileService {
@@ -102,6 +104,33 @@ class ProfileService {
         ?.map(item => (item as ExperienceDbSchema)._id)
         .indexOf(exp_id);
       profile.experience?.splice(removeIndex as number, 1);
+      await profile.save();
+      return res.json(profile);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Server error");
+    }
+  }
+
+  async putEducation(id: string, newEdu: EducationSchema, res: Response) {
+    try {
+      const profile = (await this.isProfileExists(id, res)) as ProfileSchema;
+      profile.education?.unshift(newEdu);
+      await profile.save();
+      return res.json(profile);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Server error");
+    }
+  }
+
+  async deleteEducation(id: string, edu_id: string, res: Response) {
+    try {
+      const profile = (await this.isProfileExists(id, res)) as ProfileSchema;
+      const removeIndex = profile.education
+        ?.map(item => (item as EducationDbSchema)._id)
+        .indexOf(edu_id);
+      profile.education?.splice(removeIndex as number, 1);
       await profile.save();
       return res.json(profile);
     } catch (error) {

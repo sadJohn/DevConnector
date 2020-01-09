@@ -26,6 +26,10 @@ export interface EducationSchema {
   description?: string;
 }
 
+export interface EducationDbSchema extends EducationSchema {
+  _id?: string
+}
+
 export type Education = EducationSchema[];
 
 export interface Social {

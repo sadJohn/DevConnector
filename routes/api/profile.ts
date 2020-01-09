@@ -61,6 +61,32 @@ router.delete(
   deleteExpHandler as RequestHandler
 );
 
+router.delete(
+  "/education/:edu_id",
+  auth as RequestHandler,
+  deleteEduHandler as RequestHandler
+);
+
+router.put(
+  "/education",
+  auth as RequestHandler,
+  [
+    check("school", "School is required")
+      .not()
+      .isEmpty(),
+    check("degree", "Degree is requied")
+      .not()
+      .isEmpty(),
+    check("fieldofstudy", "Fieldofstudy is required")
+      .not()
+      .isEmpty(),
+    check("from", "From date is required")
+      .not()
+      .isEmpty()
+  ],
+  putEducation as RequestHandler
+);
+
 async function getProfileHandler(
   req: AuthRequest,
   res: Response,
@@ -144,6 +170,42 @@ async function deleteExpHandler(
   _: NextFunction
 ) {
   await profileService.deleteExperience(req.user.id, req.params.exp_id, res);
+}
+
+async function deleteEduHandler(
+  req: AuthRequest,
+  res: Response,
+  _: NextFunction
+) {
+  await profileService.deleteEducation(req.user.id, req.params.edu_id, res);
+}
+
+async function putEducation(req: AuthRequest, res: Response, _: NextFunction) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const {
+    school,
+    degree,
+    fieldofstudy,
+    from,
+    to,
+    current,
+    description
+  } = req.body;
+
+  const newEdu = {
+    school,
+    degree,
+    fieldofstudy,
+    from,
+    to,
+    current,
+    description
+  };
+  await profileService.putEducation(req.user.id, newEdu, res);
 }
 
 export default router;
