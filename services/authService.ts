@@ -7,7 +7,6 @@ import User from "../models/User";
 
 class AuthService {
   async fetchAuthUser(id: string, res: Response) {
-    console.log(id)
     try {
       return await User.findById(id).select("-password");
     } catch (error) {

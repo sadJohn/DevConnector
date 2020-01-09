@@ -21,16 +21,33 @@ router.post(
   postHandler as RequestHandler
 );
 
+router.get("/", auth as RequestHandler, async (_, res) => {
+  await postService.fetchAllPosts(res);
+});
+
+router.get("/:id", auth as RequestHandler, async (req, res) => {
+  await postService.fetchPost(req.params.id, res);
+});
+
+router.delete("/:id", auth as RequestHandler, deleteHandler as RequestHandler);
+
 async function postHandler(req: AuthRequest, res: Response, _: NextFunction) {
-  const user = await authService.fetchAuthUser(req.user.id, res) as UserSchema;
+  const user = (await authService.fetchAuthUser(
+    req.user.id,
+    res
+  )) as UserSchema;
 
   const newPost = {
-      text: req.body.text,
-      user: req.user.id,
-      name: user.name,
-      avatar: user.avatar,
-  }
+    text: req.body.text,
+    user: req.user.id,
+    name: user.name,
+    avatar: user.avatar
+  };
   await postService.createPost(newPost as PostSchema, res);
+}
+
+async function deleteHandler(req: AuthRequest, res: Response, _: NextFunction) {
+  await postService.deletePost(req.params.id, req.user.id, res);
 }
 
 export default router;
