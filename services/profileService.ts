@@ -1,4 +1,6 @@
 import { Response } from "express";
+import request from "request";
+import config from "config";
 
 import Profile from "../models/Profile";
 import {
@@ -137,6 +139,25 @@ class ProfileService {
       console.log(error);
       return res.status(500).send("Server error");
     }
+  }
+
+  fetchGithubRepos(username: string, res: Response) {
+    const options = {
+      method: "GET",
+      uri: `https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc&client_id=${config.get(
+        "githubClientId"
+      )}&client_secret=${config.get("githubSecret")}`,
+      headers: { "user-agent": "node.js" }
+    };
+    request(options, (error, response, body) => {
+      if (error) {
+        console.log(error);
+      }
+      if (response.statusCode !== 200) {
+        return res.status(404).json({ msg: "No github profile found" });
+      }
+      return res.json(JSON.parse(body));
+    });
   }
 }
 

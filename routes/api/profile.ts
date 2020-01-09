@@ -87,6 +87,10 @@ router.put(
   putEducation as RequestHandler
 );
 
+router.get("/github/:username", (req, res) => {
+  profileService.fetchGithubRepos(req.params.username, res);
+});
+
 async function getProfileHandler(
   req: AuthRequest,
   res: Response,
