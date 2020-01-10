@@ -28,10 +28,10 @@ class ProfileService {
         user: id
       }).populate("user", ["name", "avatar"]);
       if (!profile) {
-        return res.status(404).json({ msg: "Profile not found" });
+        res.status(404).json({ msg: "Profile not found" });
+      } else {
+        return res.json(profile);
       }
-
-      return res.json(profile);
     } catch (error) {
       if (error.kind === "ObjectId") {
         return res.status(404).json({ msg: "Profile not found" });
@@ -154,9 +154,10 @@ class ProfileService {
         console.log(error);
       }
       if (response.statusCode !== 200) {
-        return res.status(404).json({ msg: "No github profile found" });
+        res.status(404).json({ msg: "No github profile found" });
+      } else {
+        return res.json(JSON.parse(body));
       }
-      return res.json(JSON.parse(body));
     });
   }
 }

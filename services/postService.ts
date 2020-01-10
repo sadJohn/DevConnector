@@ -29,9 +29,10 @@ class PostService {
     try {
       const post = await Post.findById(id);
       if (!post) {
-        return res.status(404).json({ msg: "Post not found" });
+        res.status(404).json({ msg: "Post not found" });
+      } else {
+        return post;
       }
-      return res.json(post);
     } catch (error) {
       console.log(error);
       if (error.kind === "ObjectId") {
@@ -57,6 +58,42 @@ class PostService {
       if (error.kind === "ObjectId") {
         return res.status(404).json({ msg: "Post not found" });
       }
+      return res.status(500).send("Server error");
+    }
+  }
+
+  async likePost(post: PostSchema, id: string, res: Response) {
+    try {
+      const alreadyliked = !!post.likes?.find(
+        like => like.user.toString() === id
+      );
+      if (alreadyliked) {
+        res.status(400).json({ msg: "Post already liked" });
+      } else {
+        post.likes?.unshift({ user: id });
+        await post.save();
+        return post.likes;
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Server error");
+    }
+  }
+
+  async unlikePost(post: PostSchema, id: string, res: Response) {
+    try {
+      const removeIndex = post.likes?.findIndex(
+        like => like.user.toString() === id
+      );
+      if (removeIndex === -1) {
+        res.status(400).json({ msg: "Post has not yet been liked" });
+      } else {
+        post.likes?.splice(removeIndex as number);
+        await post.save();
+        return post.likes;
+      }
+    } catch (error) {
+      console.log(error);
       return res.status(500).send("Server error");
     }
   }
