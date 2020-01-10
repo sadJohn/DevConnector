@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-import { PostSchema } from "../interfaces/post";
+import { PostSchema, CommentSchema, CommentDbSchema } from "../interfaces/post";
 import Post from "../models/Post";
 
 class PostService {
@@ -91,6 +91,45 @@ class PostService {
         post.likes?.splice(removeIndex as number);
         await post.save();
         return post.likes;
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Server error");
+    }
+  }
+
+  async addComment(post: PostSchema, comment: CommentSchema, res: Response) {
+    try {
+      post.comments?.unshift(comment);
+      await post.save();
+      return post.comments;
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Server error");
+    }
+  }
+
+  async deleteComment(
+    post: PostSchema,
+    comment_id: string,
+    user: string,
+    res: Response
+  ) {
+    try {
+      const targetComment = post.comments?.find(
+        comment => (comment as CommentDbSchema)._id?.toString() === comment_id
+      );
+      if (!targetComment) {
+        res.status(404).json({ msg: "Comment does not exist" });
+      } else if (targetComment.user.toString() !== user) {
+        res.status(401).json({ msg: "User not authorized" });
+      } else {
+        const removeIndex = post.comments?.findIndex(
+          comment => (comment as CommentDbSchema)._id?.toString() === comment_id
+        );
+        post.comments?.splice(removeIndex as number);
+        await post.save();
+        return post.comments;
       }
     } catch (error) {
       console.log(error);

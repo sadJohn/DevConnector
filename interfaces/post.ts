@@ -6,7 +6,7 @@ export interface LikeSchema {
 
 export type Like = LikeSchema[];
 
-export interface CommentsSchema {
+export interface CommentSchema {
   user: string;
   text: string;
   name?: string;
@@ -14,7 +14,11 @@ export interface CommentsSchema {
   date: Date;
 }
 
-export type Comments = CommentsSchema[];
+export interface CommentDbSchema extends CommentSchema {
+  _id?: string
+}
+
+export type Comments = CommentSchema[];
 
 export interface PostSchema extends Document {
   user: string;
