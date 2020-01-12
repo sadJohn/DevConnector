@@ -4,7 +4,7 @@ import express, {
   RequestHandler,
   NextFunction
 } from "express";
-import { check } from "express-validator";
+import { check, validationResult } from "express-validator";
 import bcrypt from "bcryptjs";
 
 import auth from "../../middleware/auth";
@@ -25,7 +25,8 @@ router.post(
     check("password", "Password is required").exists()
   ],
   async (req: Request, res: Response) => {
-    authService.sendValidationResult(req, res);
+    const validate = authService.sendValidationResult(req, res);
+    if (!validate) return;
 
     const { email, password } = req.body;
 

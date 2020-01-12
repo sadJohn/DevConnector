@@ -105,7 +105,8 @@ async function postProfileHandler(
   res: Response,
   _: NextFunction
 ) {
-  authService.sendValidationResult(req, res);
+  const validate = authService.sendValidationResult(req, res);
+  if (!validate) return;
 
   const {
     company,
@@ -147,7 +148,8 @@ async function postProfileHandler(
 }
 
 async function putExperience(req: AuthRequest, res: Response, _: NextFunction) {
-  authService.sendValidationResult(req, res);
+  const validate = authService.sendValidationResult(req, res);
+  if (!validate) return;
 
   const { title, company, location, from, to, current, description } = req.body;
 
@@ -180,7 +182,8 @@ async function deleteEduHandler(
 }
 
 async function putEducation(req: AuthRequest, res: Response, _: NextFunction) {
-  authService.sendValidationResult(req, res);
+  const validate = authService.sendValidationResult(req, res);
+  if (!validate) return;
 
   const {
     school,

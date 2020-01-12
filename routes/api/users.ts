@@ -22,8 +22,9 @@ router.post(
     ).isLength({ min: 6 })
   ],
   async (req: Request, res: Response) => {
-    authService.sendValidationResult(req, res);
-
+    const validate = authService.sendValidationResult(req, res);
+    if (!validate) return;
+  
     const { name, email, password } = req.body;
 
     try {

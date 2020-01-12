@@ -58,7 +58,8 @@ router.delete(
 );
 
 async function postHandler(req: AuthRequest, res: Response, _: NextFunction) {
-  authService.sendValidationResult(req, res);
+  const validate = authService.sendValidationResult(req, res);
+  if (!validate) return;
 
   const user = (await authService.fetchAuthUser(
     req.user.id,
@@ -95,7 +96,8 @@ async function commentHandler(
   res: Response,
   _: NextFunction
 ) {
-  authService.sendValidationResult(req, res);
+  const validate = authService.sendValidationResult(req, res);
+  if (!validate) return;
 
   const user = (await authService.fetchAuthUser(
     req.user.id,

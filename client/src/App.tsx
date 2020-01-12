@@ -13,7 +13,7 @@ const App: React.FC = () => (
     <Router>
       <Navbar />
       <Route exact path="/" component={Landing} />
-      <Container>
+      <Container style={{ height: "100%" }}>
         <Switch>
           <Route exact path="/register" component={Resister} />
           <Route exact path="/login" component={Login} />
