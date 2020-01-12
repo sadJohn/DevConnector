@@ -1,8 +1,9 @@
-import React from "react";
+import * as React from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface LandingProps {}
 
-const Landing: React.SFC<LandingProps> = () => {
+const Landing: React.FC<LandingProps> = () => {
   const classes = useStyles();
 
   return (
@@ -40,14 +41,14 @@ const Landing: React.SFC<LandingProps> = () => {
       </Typography>
       <Container className={classes.buttonGroup}>
         <Button variant="contained" color="primary">
-          Sign Up
+          <Link to="/register">Sign Up</Link>
         </Button>
         <Button
           variant="contained"
           color="primary"
           style={{ marginLeft: "2rem" }}
         >
-          Login
+          <Link to="/login">Login</Link>
         </Button>
       </Container>
     </Container>
