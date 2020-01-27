@@ -8,6 +8,8 @@ import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setAlert } from "../../actions/alert";
 
 export interface RegisterProps {}
 
@@ -71,6 +73,7 @@ const TextInput = ({ label, ...props }: FormFieldValues) => {
 
 const Register: React.FC<RegisterProps> = () => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const initialvalues: RegisterFormValues = {
     name: "",
     email: "",
@@ -112,6 +115,9 @@ const Register: React.FC<RegisterProps> = () => {
         })}
         onSubmit={(values, { setSubmitting }) => {
           console.log(values);
+          dispatch(
+            setAlert({ open: true, msg: "it works", severity: "success" })
+          );
         }}
       >
         <Form className={classes.form}>

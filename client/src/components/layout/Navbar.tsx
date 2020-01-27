@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface NavbarProps {}
 
-const Navbar: React.FC<NavbarProps> = () => {
+const Navbar: React.FC<NavbarProps> = React.memo(() => {
   const classes = useStyles();
 
   return (
@@ -40,6 +40,6 @@ const Navbar: React.FC<NavbarProps> = () => {
       </Toolbar>
     </AppBar>
   );
-};
+});
 
 export default Navbar;

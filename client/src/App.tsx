@@ -7,20 +7,26 @@ import theme from "./theme/theme";
 import Login from "./components/auth/Login";
 import Resister from "./components/auth/Register";
 import Container from "@material-ui/core/Container";
+import { Provider } from "react-redux";
+import store from "./store";
+import Alert from "./components/layout/Alert";
 
 const App: React.FC = () => (
-  <ThemeProvider theme={theme}>
-    <Router>
-      <Navbar />
-      <Route exact path="/" component={Landing} />
-      <Container style={{ height: "100%" }}>
-        <Switch>
-          <Route exact path="/register" component={Resister} />
-          <Route exact path="/login" component={Login} />
-        </Switch>
-      </Container>
-    </Router>
-  </ThemeProvider>
+  <Provider store={store}>
+    <ThemeProvider theme={theme}>
+      <Router>
+        <Navbar />
+        <Route exact path="/" component={Landing} />
+        <Container style={{ height: "100%" }}>
+          <Alert />
+          <Switch>
+            <Route exact path="/register" component={Resister} />
+            <Route exact path="/login" component={Login} />
+          </Switch>
+        </Container>
+      </Router>
+    </ThemeProvider>
+  </Provider>
 );
 
 export default App;

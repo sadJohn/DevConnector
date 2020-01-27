@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface LandingProps {}
 
-const Landing: React.FC<LandingProps> = () => {
+const Landing: React.FC<LandingProps> = React.memo(() => {
   const classes = useStyles();
 
   return (
@@ -53,6 +53,6 @@ const Landing: React.FC<LandingProps> = () => {
       </Container>
     </Container>
   );
-};
+});
 
 export default Landing;
