@@ -1,11 +1,8 @@
 import mongoose from "mongoose";
-import config from "config";
-
-const mongodb: string = config.get("mongodb");
 
 const connectDB = () => {
   try {
-    mongoose.connect(mongodb, {
+    mongoose.connect(process.env.MONGODB as string, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,

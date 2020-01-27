@@ -1,6 +1,5 @@
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import config from "config";
 
 import { AuthRequest, AuthToken } from "../interfaces/auth";
 import { RequestUser } from "../interfaces/user";
@@ -12,7 +11,7 @@ const auth = (req: AuthRequest, res: Response, next: NextFunction) => {
   }
 
   try {
-    const decoded = jwt.verify(token, config.get("jwtSecret"));
+    const decoded = jwt.verify(token, process.env.JWTSECRET as string);
     req.user = (decoded as AuthToken).user as RequestUser;
     next();
   } catch (error) {

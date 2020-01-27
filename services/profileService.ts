@@ -1,6 +1,5 @@
 import { Response } from "express";
 import request from "request";
-import config from "config";
 
 import Profile from "../models/Profile";
 import {
@@ -144,9 +143,9 @@ class ProfileService {
   fetchGithubRepos(username: string, res: Response) {
     const options = {
       method: "GET",
-      uri: `https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc&client_id=${config.get(
-        "githubClientId"
-      )}&client_secret=${config.get("githubSecret")}`,
+      uri: `https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc&client_id=${
+        process.env.GITHUB_CLIENT_ID
+      }&client_secret=${process.env.GITHUB_SECRET}`,
       headers: { "user-agent": "node.js" }
     };
     request(options, (error, response, body) => {
