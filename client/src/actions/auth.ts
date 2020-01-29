@@ -3,17 +3,34 @@ import {
   REGISTER_SUCCESS,
   REGISTER_FAIL,
   AppThunk,
-  User,
   AlertState,
-  AppDispatch
+  AppDispatch,
+  USER_LOADED,
+  AUTH_ERROR,
+  UserProfile,
+  UserAuth
 } from "./constants";
 import { setAlert } from "./alert";
+import setAuthToken from "../util/setAuthToken";
+
+export const loadUser = (): AppThunk<UserProfile> => async dispatch => {
+  setAuthToken(localStorage.token);
+  try {
+    const res = await axios.get("/api/auth");
+    dispatch({
+      type: USER_LOADED,
+      payload: res.data
+    });
+  } catch (err) {
+    dispatch({ type: AUTH_ERROR });
+  }
+};
 
 export const register = ({
   name,
   email,
   password
-}: User): AppThunk<User> | AppThunk<AlertState> => async (
+}: UserAuth): AppThunk<UserProfile> | AppThunk<AlertState> => async (
   dispatch: AppDispatch<AlertState>
 ) => {
   const config = {
@@ -32,7 +49,6 @@ export const register = ({
         severity: "success"
       })
     );
-    console.log("before");
   } catch (err) {
     dispatch({ type: REGISTER_FAIL });
     dispatch(
