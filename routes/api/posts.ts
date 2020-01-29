@@ -1,5 +1,4 @@
 import express, { Response, RequestHandler, NextFunction } from "express";
-import { check } from "express-validator";
 
 import auth from "../../middleware/auth";
 import { AuthRequest } from "../../interfaces/auth";
@@ -10,16 +9,8 @@ import { PostSchema, CommentSchema } from "../../interfaces/post";
 
 const router = express.Router();
 
-router.post(
-  "/",
-  auth as RequestHandler,
-  [
-    check("text", "Text is required")
-      .not()
-      .isEmpty()
-  ],
-  postHandler as RequestHandler
-);
+// Text is required
+router.post("/", auth as RequestHandler, postHandler as RequestHandler);
 
 router.get("/", auth as RequestHandler, async (_, res) => {
   await postService.fetchAllPosts(res);
@@ -40,14 +31,10 @@ router.put(
   unlikeHandler as RequestHandler
 );
 
+// Text is required
 router.post(
   "/comment/:id",
   auth as RequestHandler,
-  [
-    check("text", "Text is required")
-      .not()
-      .isEmpty()
-  ],
   commentHandler as RequestHandler
 );
 
@@ -58,9 +45,6 @@ router.delete(
 );
 
 async function postHandler(req: AuthRequest, res: Response, _: NextFunction) {
-  const validate = authService.sendValidationResult(req, res);
-  if (!validate) return;
-
   const user = (await authService.fetchAuthUser(
     req.user.id,
     res
@@ -96,9 +80,6 @@ async function commentHandler(
   res: Response,
   _: NextFunction
 ) {
-  const validate = authService.sendValidationResult(req, res);
-  if (!validate) return;
-
   const user = (await authService.fetchAuthUser(
     req.user.id,
     res

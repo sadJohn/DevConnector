@@ -1,30 +1,18 @@
 import express, { Response, RequestHandler, NextFunction } from "express";
-import { check } from "express-validator";
 
 import auth from "../../middleware/auth";
 import { AuthRequest } from "../../interfaces/auth";
 import { ProfileSchema, Social } from "../../interfaces/profile";
 import profileService from "../../services/profileService";
 import userService from "../../services/userService";
-import authService from "../../services/authService";
 
 const router = express.Router();
 
 router.get("/me", auth as RequestHandler, getProfileHandler as RequestHandler);
 
-router.post(
-  "/",
-  auth as RequestHandler,
-  [
-    check("status", "Status is required")
-      .not()
-      .isEmpty(),
-    check("skills", "Skills is required")
-      .not()
-      .isEmpty()
-  ],
-  postProfileHandler as RequestHandler
-);
+// Status is required
+// Skills is required
+router.post("/", auth as RequestHandler, postProfileHandler as RequestHandler);
 
 router.get("/", async (_, res) => {
   await profileService.fetchAllProfiles(res);
@@ -39,20 +27,12 @@ router.delete("/", auth as RequestHandler, async (req, res) => {
   await userService.deleteUser((req as AuthRequest).user.id, res);
 });
 
+// Title is required
+// Company is requied
+// From date is required
 router.put(
   "/experience",
   auth as RequestHandler,
-  [
-    check("title", "Title is required")
-      .not()
-      .isEmpty(),
-    check("company", "Company is requied")
-      .not()
-      .isEmpty(),
-    check("from", "From date is required")
-      .not()
-      .isEmpty()
-  ],
   putExperience as RequestHandler
 );
 
@@ -68,23 +48,10 @@ router.delete(
   deleteEduHandler as RequestHandler
 );
 
+// From Fieldofstudy Degree School is required
 router.put(
   "/education",
   auth as RequestHandler,
-  [
-    check("school", "School is required")
-      .not()
-      .isEmpty(),
-    check("degree", "Degree is requied")
-      .not()
-      .isEmpty(),
-    check("fieldofstudy", "Fieldofstudy is required")
-      .not()
-      .isEmpty(),
-    check("from", "From date is required")
-      .not()
-      .isEmpty()
-  ],
   putEducation as RequestHandler
 );
 
@@ -105,9 +72,6 @@ async function postProfileHandler(
   res: Response,
   _: NextFunction
 ) {
-  const validate = authService.sendValidationResult(req, res);
-  if (!validate) return;
-
   const {
     company,
     website,
@@ -148,9 +112,6 @@ async function postProfileHandler(
 }
 
 async function putExperience(req: AuthRequest, res: Response, _: NextFunction) {
-  const validate = authService.sendValidationResult(req, res);
-  if (!validate) return;
-
   const { title, company, location, from, to, current, description } = req.body;
 
   const newExp = {
@@ -182,9 +143,6 @@ async function deleteEduHandler(
 }
 
 async function putEducation(req: AuthRequest, res: Response, _: NextFunction) {
-  const validate = authService.sendValidationResult(req, res);
-  if (!validate) return;
-
   const {
     school,
     degree,

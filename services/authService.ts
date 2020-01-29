@@ -1,6 +1,5 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import jwt from "jsonwebtoken";
-import { validationResult } from "express-validator";
 
 import User from "../models/User";
 
@@ -23,15 +22,6 @@ class AuthService {
       if (err) throw err;
       return res.json({ token });
     });
-  }
-
-  sendValidationResult(req: Request, res: Response) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-    } else {
-      return true;
-    }
   }
 }
 

@@ -4,7 +4,13 @@ import thunk from "redux-thunk";
 import { rootReducer, RootState } from "./redusers";
 
 const initialStore: RootState = {
-  alert: { open: false, msg: "", severity: "info" }
+  alert: { open: false, msg: "", severity: "info" },
+  register: {
+    token: localStorage.getItem("token"),
+    isAuthenticated: false,
+    loading: true,
+    user: null
+  }
 };
 
 const middleware = [thunk];

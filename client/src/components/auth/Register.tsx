@@ -9,7 +9,7 @@ import Button from "@material-ui/core/Button";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setAlert } from "../../actions/alert";
+import { register } from "../../actions/auth";
 
 export interface RegisterProps {}
 
@@ -113,11 +113,9 @@ const Register: React.FC<RegisterProps> = () => {
               return this.parent.password === value;
             })
         })}
-        onSubmit={(values, { setSubmitting }) => {
-          console.log(values);
-          dispatch(
-            setAlert({ open: true, msg: "it works", severity: "success" })
-          );
+        onSubmit={values => {
+          const { name, email, password } = values;
+          dispatch(register({ name, email, password }));
         }}
       >
         <Form className={classes.form}>
